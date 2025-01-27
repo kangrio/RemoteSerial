@@ -4,7 +4,12 @@ void RemoteSerialClass::begin(AsyncWebServer *server, const char* url){
 	_server = server;
 	_ws = new AsyncWebSocket("/remoteserialws"); // this hardcoded as it is referenced by the webpage
 
-	_server->on(url, HTTP_GET, [](AsyncWebServerRequest *request){
+	_server->on(url, HTTP_GET, [this](AsyncWebServerRequest *request){
+		if(useHttpAuth){
+			if (!request->authenticate(_http_username, _http_password)) {
+				return request->requestAuthentication();
+			}
+		}
 	   request->send_P(200, F("text/html"), HTML_REMOTE_SERIAL_PAGE);   
 	});
 
@@ -27,6 +32,12 @@ void RemoteSerialClass::begin(AsyncWebServer *server, const char* url){
 
 void RemoteSerialClass::setIncomingMessageHandler(IncomingMessageHandler handler){
 	_incomingMessageHandler = handler;
+}
+
+void RemoteSerialClass::setHttpAuth(const char* username, const char* pass){
+	useHttpAuth = true;
+	_http_username = username;
+	_http_password = pass;
 }
 
 size_t RemoteSerialClass::write(uint8_t m) {

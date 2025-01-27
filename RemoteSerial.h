@@ -18,12 +18,16 @@ typedef std::function<void(const uint8_t *data, size_t len)> IncomingMessageHand
 class RemoteSerialClass : public Print {
 	public:
 		void begin(AsyncWebServer *server, const char* url = "/remoteserial");
+		void setHttpAuth(const char* username, const char* pass);
 		void setIncomingMessageHandler(IncomingMessageHandler handler);
 		void cleanupClients();
 
 		size_t write(uint8_t);
 		size_t write(const uint8_t* buffer, size_t size);
 	private:
+		bool useHttpAuth = false;
+		const char* _http_username;
+		const char* _http_password;
 		AsyncWebServer* _server;
 		AsyncWebSocket* _ws;
 		IncomingMessageHandler _incomingMessageHandler = NULL;
